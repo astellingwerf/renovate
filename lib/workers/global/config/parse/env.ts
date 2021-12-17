@@ -74,7 +74,16 @@ export function getConfig(inputEnv: NodeJS.ProcessEnv): AllConfig {
 
   const coersions = {
     boolean: (val: string): boolean => val === 'true',
-    array: (val: string): string[] => val.split(',').map((el) => el.trim()),
+    array: (val: string): string[] => {
+      if (val === '') {
+        return [];
+      }
+      try {
+        return JSON.parse(val);
+      } catch (err) {
+        return val.split(',').map((el) => el.trim());
+      }
+    },
     string: (val: string): string => val.replace(/\\n/g, '\n'),
     object: (val: string): any => JSON.parse(val),
     integer: parseInt,
