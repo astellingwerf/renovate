@@ -43,7 +43,10 @@ export async function confirmIfDepUpdated(
     return false;
   }
 
-  if (upgrade.depName !== newUpgrade.depName) {
+  if (
+    upgrade.depName !== newUpgrade.depName &&
+    upgrade.updateType !== 'replacement' // replacements are allowed to change depName
+  ) {
     logger.debug(
       {
         manager,
@@ -114,6 +117,7 @@ export async function doAutoReplace(
   const {
     packageFile,
     depName,
+    newName,
     currentValue,
     newValue,
     currentDigest,
@@ -166,6 +170,9 @@ export async function doAutoReplace(
           newDigest
         );
       }
+    }
+    if (upgrade.updateType === 'replacement' && newName !== undefined) {
+      newString = newString.replace(regEx(escapeRegExp(depName), 'g'), newName);
     }
     logger.debug(
       { packageFile, depName },
